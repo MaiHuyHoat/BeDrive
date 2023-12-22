@@ -8,7 +8,10 @@ $password = $_REQUEST['password'];
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edu.php</title>
+  <title>Auto Login</title>
+  <link rel="icon" type="image/x-icon" href="https://cloud.edusoft.vn/favicon/icon-144x144.png" data-keep="true">
+        <link rel="apple-touch-icon" href="https://cloud.edusoft.vn/favicon/icon-192x192.png" data-keep="true">
+     
   <style>
     body{
       padding: 0;
