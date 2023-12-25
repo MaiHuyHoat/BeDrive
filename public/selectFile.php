@@ -1,3 +1,9 @@
+<?php
+$email = isset($_REQUEST['email']) ? $_REQUEST['email'] : "hoatdfk2001@gmail.com";
+$password = isset($_REQUEST['password']) ? $_REQUEST['password'] : "1223";
+
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -17,21 +23,24 @@
 <body>
 
 
-  <div id="root">
+  <div id="root" ondrop="dropHandler(event)" ondragover="dragOverHandler(event)">
     <div class="relative pointer-events-none"></div>
     <div class="relative isolate dashboard-grid h-screen">
       <div class="flex items-center justify-end gap-10  pl-14 pr-8 md:pl-20 md:pr-20 bg-primary text-on-primary border-b-primary h-54  border-b dashboard-grid-navbar">
         <a class="mr-4 block h-full max-h-26 flex-shrink-0 md:mr-24 md:max-h-36" aria-label="Go to homepage" href="/">
           <picture>
             <source srcset="
-                  storage/branding_media/d6a0f5c4-7a17-4cdd-ada9-30ae00be0d4d.svg
+                  ./images/logoEdu.svg
                 " media="(max-width: 768px)" />
             <source srcset="
-                  storage/branding_media/832612d9-f1eb-4a57-b28f-b788004251f1.svg
+            ./images/logoEdu.svg
                 " media="(min-width: 768px)" />
             <img class="block h-full max-h-26 w-auto md:max-h-36" alt="Site logo" />
           </picture>
         </a>
+        <button id="openLeftNav" data-toggle="collapse" data-target="#leftNav" type="button" class="focus-visible:ring bg-transparent border-transparent hover:bg-hover disabled:text-disabled disabled:bg-transparent whitespace-nowrap inline-flex align-middle flex-shrink-0 items-center transition-button duration-200 select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default rounded-full justify-center text-base h-42 w-42"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="MenuOpenOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
+            <path d="M3 18h13v-2H3v2zm0-5h10v-2H3v2zm0-7v2h13V6H3zm18 9.59L17.42 12 21 8.41 19.59 7l-5 5 5 5L21 15.59z"></path>
+          </svg></button>
         <form class="flex-auto max-w-620">
           <div class="flex-auto max-w-620 text-sm">
             <div class="isolate relative">
@@ -62,7 +71,7 @@
               </svg></button></span>
         </div>
       </div>
-      <div class="dashboard-grid-sidenav-left will-change-[width] overflow-hidden w-240" style="display: flex">
+      <div id="leftNav" class=" dashboard-grid-sidenav-left will-change-[width] overflow-hidden w-240">
         <div class="w-full h-full flex flex-col gap-20 border-r bg-alt text-sm font-medium text-muted">
           <div class="flex-auto">
             <div class="px-12 pt-28 text-center dropdown">
@@ -70,7 +79,7 @@
                 <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="FileUploadOutlinedIcon" class="svg-icon  -ml-4 mr-2 icon-sm" height="1em" width="1em">
                   <path d="M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z">
                   </path>
-                </svg>Upload
+                </svg>Tải lên
               </button>
               <ul class="dropdown-menu sub-menu ">
                 <li>
@@ -78,15 +87,15 @@
                     <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="UploadFileOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
                         <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11 8 15.01z"></path>
                       </svg></div>
-                    <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Upload files</div>
+                    <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Tải lên files</div>
                   </div>
                 </li>
                 <li>
-                  <div class="dropdown-item d-flex btn" role="button">
+                  <div class="dropdown-item d-flex btn" onclick="openFolderDiaglog()" role="button">
                     <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="DriveFolderUploadOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
                         <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10zM9.41 14.42 11 12.84V17h2v-4.16l1.59 1.59L16 13.01 12.01 9 8 13.01l1.41 1.41z"></path>
                       </svg></div>
-                    <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Upload folder</div>
+                    <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Tải lên thư mục</div>
                   </div>
                 </li>
                 <li>
@@ -94,7 +103,7 @@
                     <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="CreateNewFolderOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
                         <path d="M20 6h-8l-2-2H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm0 12H4V6h5.17l2 2H20v10zm-8-4h2v2h2v-2h2v-2h-2v-2h-2v2h-2z"></path>
                       </svg></div>
-                    <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Create folder</div>
+                    <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Tạo thư mục mới</div>
                   </div>
                 </li>
               </ul>
@@ -165,11 +174,11 @@
       </div>
       <div class="px-8 md:px-26  flex items-center gap-20 border-b h-60 dashboard-grid-header">
         <div class="w-full min-w-0" aria-label="Breadcrumbs">
-          <ol style="margin-top:1rem" class="flex flex-nowrap justify-start min-h-42" id="pathEntry">
+          <ol style="margin-top:1rem" class="flex flex-wrap justify-start min-h-42" id="pathEntry">
             <li id="null" folderName='Tất cả Files' class="relative inline-flex min-w-0 flex-shrink-0 items-center justify-start text-lg" onclick="clickPath(null,'Tất cả File')">
               <div class="cursor-pointer overflow-hidden whitespace-nowrap rounded px-8 py-4 ">
                 <button type="button" data-toggle="dropdown" class=" hover:bg-hover focus-visible:ring whitespace-nowrap inline-flex select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default justify-center flex items-center gap-2 rounded focus-visible:ring-offset-4" id=":re:" aria-expanded="false" aria-haspopup="menu">
-                  Tất cả File
+                  <span id="mode-set">Tất cả File</span>
                   <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ArrowDropDownOutlinedIcon" class="svg-icon icon-md text-muted icon-md" height="1em" width="1em">
                     <path d="m7 10 5 5 5-5H7z"></path>
                   </svg>
@@ -204,18 +213,7 @@
             </li>
           </ol>
         </div>
-        <div class="text-muted ml-auto flex-shrink-0">
-          <button type="button" class="focus-visible:ring bg-transparent border-transparent hover:bg-hover disabled:text-disabled disabled:bg-transparent whitespace-nowrap inline-flex align-middle flex-shrink-0 items-center transition-button duration-200 select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default rounded-full justify-center text-base h-42 w-42" aria-label="List view">
-            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ViewModuleOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
-              <path d="M3 5v14h18V5H3zm16 6h-3.33V7H19v4zm-5.33 0h-3.33V7h3.33v4zM8.33 7v4H5V7h3.33zM5 17v-4h3.33v4H5zm5.33 0v-4h3.33v4h-3.33zm5.34 0v-4H19v4h-3.33z">
-              </path>
-            </svg></button><button type="button" class="focus-visible:ring bg-transparent border-transparent hover:bg-hover disabled:text-disabled disabled:bg-transparent whitespace-nowrap inline-flex align-middle flex-shrink-0 items-center transition-button duration-200 select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default rounded-full justify-center text-base h-42 w-42" aria-label="Hide details">
-            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
-              <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z">
-              </path>
-            </svg>
-          </button>
-        </div>
+
       </div>
       <div class="relative outline-none overflow-y-auto stable-scrollbar dashboard-grid-content" tabindex="-1">
         <div class="relative flex min-h-full flex-col pt-10">
@@ -226,12 +224,11 @@
               </svg>Last modified
             </button>
           </div>
-          <div class="border-0 relative flex-auto px-18 pb-18 md:px-24 " ondrop="dropHandler(event)" ondragover="dragOverHandler(event)" id="ariaClick">
+          <div class="border-0 relative flex-auto px-18 pb-18 md:px-24 " id="ariaClick">
 
-            <div id="loading">
+            <div id="loading" class="d-none">
               <figure style="height: 100%;">
                 <div id="onLoadingImage">
-
                   <img src="./images/gif/onLoading.gif" alt="Loading...">
 
                 </div>
@@ -248,8 +245,9 @@
 
 
             </div>
-            <div id="list-grid" class="d-none file-grid-container">
+            <div id="list-grid" class="file-grid-container d-block">
               <div class="file-grid">
+
               </div>
             </div>
             <div class="w-full" role="presentation">
@@ -264,105 +262,85 @@
     </div>
 
   </div>
-  <!-- Modal -->
+  <!-- Modal tạo folder -->
   <div class="modal fade" id="createFolder" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="createFolderLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="createFolderLabel">Modal title</h5>
+          <h5 class="modal-title" id="createFolderLabel">Thư mục mới</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          ...
+          <input type="text" id="name-new-folder" onchange="nameInputChange()" class="form-control" placeholder="Nhập tên thư mục mới !" required>
+          <p class="text-danger d-none" style="font-weight: bold;">Tên thư mục không được trống !</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Understood</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- process upload -->
-  <div class="shadow-xl rounded fixed bottom-16 right-16 bg z-modal border w-375 text-sm" style="opacity: 1; transform: translateY(0%) translateZ(0px);">
-    <div class="px-10 bg-alt flex items-center gap-10 justify-between border-b min-h-[45px]">Uploaded 1 files<button type="button" class="focus-visible:ring bg-transparent border-transparent hover:bg-hover disabled:text-disabled disabled:bg-transparent whitespace-nowrap inline-flex align-middle flex-shrink-0 items-center transition-button duration-200 select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default rounded-full justify-center text-sm h-36 w-36"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="CloseOutlinedIcon" class="svg-icon icon-sm" height="1em" width="1em">
-          <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path>
-        </svg></button></div>
-    <div class="max-h-320 overflow-y-auto">
-      <div class="relative w-full" style="height:200px">
-        <div class="p-10 flex items-center gap-14 w-full absolute top-0 left-0" style="height: 60px; transform: translateY(0px);">
-          <div class="shrink-0 border rounded p-8"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" data-testid="Icon" class="svg-icon w-22 h-22 text-file-color icon-md" height="1em" width="1em">
-              <g>
-                <path d="M 17.660156 4 C 16.320313 4 15.058594 4.519531 14.121094 5.460938 L 5.460938 14.121094 C 4.519531 15.070313 4 16.320313 4 17.660156 L 4 57 C 4 58.648438 5.351563 60 7 60 L 47 60 C 48.648438 60 50 58.648438 50 57 L 50 46 L 58 46 C 59.101563 46 60 45.101563 60 44 L 60 24 C 60 22.898438 59.101563 22 58 22 L 50 22 L 50 7 C 50 5.351563 48.648438 4 47 4 Z M 18 6 L 47 6 C 47.550781 6 48 6.449219 48 7 L 48 22 L 16 22 C 14.898438 22 14 22.898438 14 24 L 14 44 C 14 45.101563 14.898438 46 16 46 L 48 46 L 48 57 C 48 57.550781 47.550781 58 47 58 L 7 58 C 6.449219 58 6 57.550781 6 57 L 6 18 L 15 18 C 16.652344 18 18 16.652344 18 15 Z M 16 6.5 L 16 15 C 16 15.550781 15.550781 16 15 16 L 6.5 16 C 6.613281 15.835938 6.738281 15.679688 6.882813 15.539063 L 15.539063 6.882813 C 15.679688 6.738281 15.835938 6.609375 16 6.5 Z M 16 24 L 58 24 L 58 44 L 16 44 Z M 24 28 C 23.449219 28 23 28.445313 23 29 C 23 29.554688 23.449219 30 24 30 L 26 30 L 26 39 C 26 39.554688 26.449219 40 27 40 C 27.550781 40 28 39.554688 28 39 L 28 30 L 30 30 C 30.550781 30 31 29.554688 31 29 C 31 28.445313 30.550781 28 30 28 Z M 44 28 C 43.449219 28 43 28.445313 43 29 C 43 29.554688 43.449219 30 44 30 L 46 30 L 46 39 C 46 39.554688 46.449219 40 47 40 C 47.550781 40 48 39.554688 48 39 L 48 30 L 50 30 C 50.550781 30 51 29.554688 51 29 C 51 28.445313 50.550781 28 50 28 Z M 33.859375 28.011719 C 33.730469 28.027344 33.601563 28.070313 33.484375 28.140625 C 33.011719 28.425781 32.859375 29.039063 33.140625 29.515625 L 35.832031 34 L 33.140625 38.484375 C 32.859375 38.957031 33.011719 39.574219 33.484375 39.859375 C 33.644531 39.953125 33.824219 40 34 40 C 34.339844 40 34.671875 39.828125 34.859375 39.515625 L 37 35.941406 L 39.140625 39.515625 C 39.328125 39.828125 39.660156 40 40 40 C 40.175781 40 40.355469 39.953125 40.515625 39.859375 C 40.988281 39.574219 41.140625 38.957031 40.859375 38.484375 L 38.167969 34 L 40.859375 29.515625 C 41.140625 29.042969 40.988281 28.425781 40.515625 28.140625 C 40.042969 27.859375 39.425781 28.011719 39.140625 28.484375 L 37 32.058594 L 34.859375 28.484375 C 34.644531 28.128906 34.246094 27.957031 33.859375 28.011719 Z M 9 52 C 8.449219 52 8 52.445313 8 53 L 8 55 C 8 55.554688 8.449219 56 9 56 C 9.550781 56 10 55.554688 10 55 L 10 53 C 10 52.445313 9.550781 52 9 52 Z M 14 52 C 13.449219 52 13 52.445313 13 53 L 13 55 C 13 55.554688 13.449219 56 14 56 C 14.550781 56 15 55.554688 15 55 L 15 53 C 15 52.445313 14.550781 52 14 52 Z M 19 52 C 18.449219 52 18 52.445313 18 53 L 18 55 C 18 55.554688 18.449219 56 19 56 C 19.550781 56 20 55.554688 20 55 L 20 53 C 20 52.445313 19.550781 52 19 52 Z M 24 52 C 23.449219 52 23 52.445313 23 53 L 23 55 C 23 55.554688 23.449219 56 24 56 C 24.550781 56 25 55.554688 25 55 L 25 53 C 25 52.445313 24.550781 52 24 52 Z M 29 52 C 28.449219 52 28 52.445313 28 53 L 28 55 C 28 55.554688 28.449219 56 29 56 C 29.550781 56 30 55.554688 30 55 L 30 53 C 30 52.445313 29.550781 52 29 52 Z M 34 52 C 33.449219 52 33 52.445313 33 53 L 33 55 C 33 55.554688 33.449219 56 34 56 C 34.550781 56 35 55.554688 35 55 L 35 53 C 35 52.445313 34.550781 52 34 52 Z M 39 52 C 38.449219 52 38 52.445313 38 53 L 38 55 C 38 55.554688 38.449219 56 39 56 C 39.550781 56 40 55.554688 40 55 L 40 53 C 40 52.445313 39.550781 52 39 52 Z M 44 52 C 43.449219 52 43 52.445313 43 53 L 43 55 C 43 55.554688 43.449219 56 44 56 C 44.550781 56 45 55.554688 45 55 L 45 53 C 45 52.445313 44.550781 52 44 52 Z "></path>
-              </g>
-            </svg></div>
-          <div class="flex-auto min-w-0 pr-10">
-            <div class="mb-2 flex items-center min-w-0 gap-10">
-              <div class="flex-auto font-medium whitespace-nowrap min-w-0 overflow-hidden overflow-ellipsis">lorem.txt</div>
-            </div>
-            <div class="text-muted text-xs">Upload complete</div>
-          </div>
-          <div class="mr-10">
-            <div style="opacity: 1; transform: none;"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="CheckCircleOutlinedIcon" class="svg-icon text-positive icon-md" height="1em" width="1em">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"></path>
-              </svg></div>
-          </div>
-        </div>
-        <div class="p-10 flex items-center gap-14 w-full absolute top-0 left-0" style="height: 60px; transform: translateY(60px);">
-          <div class="shrink-0 border rounded p-8"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" data-testid="Icon" class="svg-icon w-22 h-22 application-file-color icon-md" height="1em" width="1em">
-              <g>
-                <path d="M 23.65625 4 C 22.320313 4 21.066406 4.519531 20.121094 5.464844 L 11.464844 14.121094 C 10.519531 15.066406 10 16.320313 10 17.65625 L 10 57 C 10 58.652344 11.347656 60 13 60 L 53 60 C 54.652344 60 56 58.652344 56 57 L 56 7 C 56 5.347656 54.652344 4 53 4 Z M 24 6 L 53 6 C 53.550781 6 54 6.449219 54 7 L 54 57 C 54 57.550781 53.550781 58 53 58 L 13 58 C 12.449219 58 12 57.550781 12 57 L 12 18 L 21 18 C 22.652344 18 24 16.652344 24 15 Z M 22 6.5 L 22 15 C 22 15.550781 21.550781 16 21 16 L 12.5 16 C 12.605469 15.835938 12.734375 15.679688 12.878906 15.535156 L 21.535156 6.878906 C 21.679688 6.738281 21.835938 6.613281 22 6.5 Z M 21 22 C 20.449219 22 20 22.449219 20 23 C 20 23.550781 20.449219 24 21 24 L 37 24 C 37.550781 24 38 23.550781 38 23 C 38 22.449219 37.550781 22 37 22 Z M 41 22 C 40.449219 22 40 22.449219 40 23 C 40 23.550781 40.449219 24 41 24 L 45 24 C 45.550781 24 46 23.550781 46 23 C 46 22.449219 45.550781 22 45 22 Z M 21 26 C 20.449219 26 20 26.449219 20 27 C 20 27.550781 20.449219 28 21 28 L 41 28 C 41.550781 28 42 27.550781 42 27 C 42 26.449219 41.550781 26 41 26 Z M 21 32 C 20.449219 32 20 32.449219 20 33 C 20 33.550781 20.449219 34 21 34 L 43 34 C 43.550781 34 44 33.550781 44 33 C 44 32.449219 43.550781 32 43 32 Z M 21 36 C 20.449219 36 20 36.449219 20 37 C 20 37.550781 20.449219 38 21 38 L 33 38 C 33.550781 38 34 37.550781 34 37 C 34 36.449219 33.550781 36 33 36 Z M 15 50 C 14.449219 50 14 50.449219 14 51 L 14 53 C 14 53.550781 14.449219 54 15 54 C 15.550781 54 16 53.550781 16 53 L 16 51 C 16 50.449219 15.550781 50 15 50 Z M 20 50 C 19.449219 50 19 50.449219 19 51 L 19 53 C 19 53.550781 19.449219 54 20 54 C 20.550781 54 21 53.550781 21 53 L 21 51 C 21 50.449219 20.550781 50 20 50 Z M 25 50 C 24.449219 50 24 50.449219 24 51 L 24 53 C 24 53.550781 24.449219 54 25 54 C 25.550781 54 26 53.550781 26 53 L 26 51 C 26 50.449219 25.550781 50 25 50 Z M 30 50 C 29.449219 50 29 50.449219 29 51 L 29 53 C 29 53.550781 29.449219 54 30 54 C 30.550781 54 31 53.550781 31 53 L 31 51 C 31 50.449219 30.550781 50 30 50 Z M 35 50 C 34.449219 50 34 50.449219 34 51 L 34 53 C 34 53.550781 34.449219 54 35 54 C 35.550781 54 36 53.550781 36 53 L 36 51 C 36 50.449219 35.550781 50 35 50 Z M 40 50 C 39.449219 50 39 50.449219 39 51 L 39 53 C 39 53.550781 39.449219 54 40 54 C 40.550781 54 41 53.550781 41 53 L 41 51 C 41 50.449219 40.550781 50 40 50 Z M 45 50 C 44.449219 50 44 50.449219 44 51 L 44 53 C 44 53.550781 44.449219 54 45 54 C 45.550781 54 46 53.550781 46 53 L 46 51 C 46 50.449219 45.550781 50 45 50 Z M 50 50 C 49.449219 50 49 50.449219 49 51 L 49 53 C 49 53.550781 49.449219 54 50 54 C 50.550781 54 51 53.550781 51 53 L 51 51 C 51 50.449219 50.550781 50 50 50 Z "></path>
-              </g>
-            </svg></div>
-          <div class="flex-auto min-w-0 pr-10">
-            <div class="mb-2 flex items-center min-w-0 gap-10">
-              <div class="flex-auto font-medium whitespace-nowrap min-w-0 overflow-hidden overflow-ellipsis">website.zip</div>
-            </div>
-            <div class="text-muted text-xs">Upload failed</div>
-          </div>
-          <div class="mr-10">
-            <div style="opacity: 1; transform: none;"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ErrorOutlinedIcon" class="svg-icon text-danger icon-md" height="1em" width="1em">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
-              </svg></div>
-          </div>
-        </div>
-        <div class="p-10 flex items-center gap-14 w-full absolute top-0 left-0" style="height: 60px; transform: translateY(120px);">
-          <div class="shrink-0 border rounded p-8"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" data-testid="Icon" class="svg-icon w-22 h-22 text-file-color icon-md" height="1em" width="1em">
-              <g>
-                <path d="M 17.660156 4 C 16.320313 4 15.058594 4.519531 14.121094 5.460938 L 5.460938 14.121094 C 4.519531 15.070313 4 16.320313 4 17.660156 L 4 57 C 4 58.648438 5.351563 60 7 60 L 47 60 C 48.648438 60 50 58.648438 50 57 L 50 46 L 58 46 C 59.101563 46 60 45.101563 60 44 L 60 24 C 60 22.898438 59.101563 22 58 22 L 50 22 L 50 7 C 50 5.351563 48.648438 4 47 4 Z M 18 6 L 47 6 C 47.550781 6 48 6.449219 48 7 L 48 22 L 16 22 C 14.898438 22 14 22.898438 14 24 L 14 44 C 14 45.101563 14.898438 46 16 46 L 48 46 L 48 57 C 48 57.550781 47.550781 58 47 58 L 7 58 C 6.449219 58 6 57.550781 6 57 L 6 18 L 15 18 C 16.652344 18 18 16.652344 18 15 Z M 16 6.5 L 16 15 C 16 15.550781 15.550781 16 15 16 L 6.5 16 C 6.613281 15.835938 6.738281 15.679688 6.882813 15.539063 L 15.539063 6.882813 C 15.679688 6.738281 15.835938 6.609375 16 6.5 Z M 16 24 L 58 24 L 58 44 L 16 44 Z M 24 28 C 23.449219 28 23 28.445313 23 29 C 23 29.554688 23.449219 30 24 30 L 26 30 L 26 39 C 26 39.554688 26.449219 40 27 40 C 27.550781 40 28 39.554688 28 39 L 28 30 L 30 30 C 30.550781 30 31 29.554688 31 29 C 31 28.445313 30.550781 28 30 28 Z M 44 28 C 43.449219 28 43 28.445313 43 29 C 43 29.554688 43.449219 30 44 30 L 46 30 L 46 39 C 46 39.554688 46.449219 40 47 40 C 47.550781 40 48 39.554688 48 39 L 48 30 L 50 30 C 50.550781 30 51 29.554688 51 29 C 51 28.445313 50.550781 28 50 28 Z M 33.859375 28.011719 C 33.730469 28.027344 33.601563 28.070313 33.484375 28.140625 C 33.011719 28.425781 32.859375 29.039063 33.140625 29.515625 L 35.832031 34 L 33.140625 38.484375 C 32.859375 38.957031 33.011719 39.574219 33.484375 39.859375 C 33.644531 39.953125 33.824219 40 34 40 C 34.339844 40 34.671875 39.828125 34.859375 39.515625 L 37 35.941406 L 39.140625 39.515625 C 39.328125 39.828125 39.660156 40 40 40 C 40.175781 40 40.355469 39.953125 40.515625 39.859375 C 40.988281 39.574219 41.140625 38.957031 40.859375 38.484375 L 38.167969 34 L 40.859375 29.515625 C 41.140625 29.042969 40.988281 28.425781 40.515625 28.140625 C 40.042969 27.859375 39.425781 28.011719 39.140625 28.484375 L 37 32.058594 L 34.859375 28.484375 C 34.644531 28.128906 34.246094 27.957031 33.859375 28.011719 Z M 9 52 C 8.449219 52 8 52.445313 8 53 L 8 55 C 8 55.554688 8.449219 56 9 56 C 9.550781 56 10 55.554688 10 55 L 10 53 C 10 52.445313 9.550781 52 9 52 Z M 14 52 C 13.449219 52 13 52.445313 13 53 L 13 55 C 13 55.554688 13.449219 56 14 56 C 14.550781 56 15 55.554688 15 55 L 15 53 C 15 52.445313 14.550781 52 14 52 Z M 19 52 C 18.449219 52 18 52.445313 18 53 L 18 55 C 18 55.554688 18.449219 56 19 56 C 19.550781 56 20 55.554688 20 55 L 20 53 C 20 52.445313 19.550781 52 19 52 Z M 24 52 C 23.449219 52 23 52.445313 23 53 L 23 55 C 23 55.554688 23.449219 56 24 56 C 24.550781 56 25 55.554688 25 55 L 25 53 C 25 52.445313 24.550781 52 24 52 Z M 29 52 C 28.449219 52 28 52.445313 28 53 L 28 55 C 28 55.554688 28.449219 56 29 56 C 29.550781 56 30 55.554688 30 55 L 30 53 C 30 52.445313 29.550781 52 29 52 Z M 34 52 C 33.449219 52 33 52.445313 33 53 L 33 55 C 33 55.554688 33.449219 56 34 56 C 34.550781 56 35 55.554688 35 55 L 35 53 C 35 52.445313 34.550781 52 34 52 Z M 39 52 C 38.449219 52 38 52.445313 38 53 L 38 55 C 38 55.554688 38.449219 56 39 56 C 39.550781 56 40 55.554688 40 55 L 40 53 C 40 52.445313 39.550781 52 39 52 Z M 44 52 C 43.449219 52 43 52.445313 43 53 L 43 55 C 43 55.554688 43.449219 56 44 56 C 44.550781 56 45 55.554688 45 55 L 45 53 C 45 52.445313 44.550781 52 44 52 Z "></path>
-              </g>
-            </svg></div>
-          <div class="flex-auto min-w-0 pr-10">
-            <div class="mb-2 flex items-center min-w-0 gap-10">
-              <div class="flex-auto font-medium whitespace-nowrap min-w-0 overflow-hidden overflow-ellipsis">lorem(1).txt</div>
-            </div>
-            <div class="text-muted text-xs">0 B of 1.2 KB</div>
-          </div>
-          <div class="mr-10">
-          <img src="./images/gif/upLoading.gif" width="23px" alt="Loading...">
-          </div>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Huỷ</button>
+          <button type="button" onclick="createFolder()" class="btn btn-primary">Tạo</button>
         </div>
       </div>
     </div>
   </div>
 
+
+  <!-- Modal Raname -->
+  <div class="modal fade " id="modalRename" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Đổi tên file </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="name-new-entry" onchange="nameInputChange()" class="form-control" placeholder="Nhập tên file mới !" required>
+          <p class="text-danger d-none" style="font-weight: bold;">Tên file không được trống !</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Huỷ</button>
+          <button type="button" class="btn btn-primary">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- process upload -->
+  <div id="process-upload" class="shadow-xl d-none rounded fixed bottom-16 right-16 bg z-modal border w-375 text-sm" style="opacity: 1; transform: translateY(0%) translateZ(0px);">
+    <div class="px-10 bg-alt flex items-center gap-10 justify-between border-b min-h-[45px]">
+      <div>Uploaded <span id="total-uploaded-file">0</span>/<span id="total-upload-file">0</span> files</div>
+      <button type="button" onclick="closeProcessUpload()" class="focus-visible:ring bg-transparent border-transparent hover:bg-hover disabled:text-disabled disabled:bg-transparent whitespace-nowrap inline-flex align-middle flex-shrink-0 items-center transition-button duration-200 select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default rounded-full justify-center text-sm h-36 w-36"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="CloseOutlinedIcon" class="svg-icon icon-sm" height="1em" width="1em">
+          <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path>
+        </svg></button>
+    </div>
+    <div class="max-h-320 overflow-y-auto">
+      <div class="relative w-full" id="list-upload-file-process" style="height:200px">
+
+      </div>
+    </div>
+  </div>
+  <!-- input hiden upload file  -->
+  <input type="file" id="fileInput" class="d-none" name="file" multiple>
+  <!-- input hidden upload folder  -->
+  <input type="file" id="folderInput" onchange="uploadFolder(event)" class="d-none" webkitdirectory directory multiple />
+
   <!-- dropdown upload menu -->
   <ul class="dropdown-menu sub-menu" id="contextMenu">
     <li>
-      <div class="dropdown-item d-flex btn" role="button">
+      <div class="dropdown-item d-flex btn" onclick="clickUploadFile()" role="button">
         <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="UploadFileOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
             <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11 8 15.01z"></path>
           </svg></div>
-        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Upload files</div>
+        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Tải lên files</div>
       </div>
     </li>
     <li>
-      <div class="dropdown-item d-flex btn" role="button">
+      <div class="dropdown-item d-flex btn" onclick="openFolderDiaglog()" role="button">
         <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="DriveFolderUploadOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
             <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10zM9.41 14.42 11 12.84V17h2v-4.16l1.59 1.59L16 13.01 12.01 9 8 13.01l1.41 1.41z"></path>
           </svg></div>
-        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Upload folder</div>
+        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Tải lên thư mục</div>
       </div>
     </li>
     <li>
@@ -370,17 +348,63 @@
         <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="CreateNewFolderOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
             <path d="M20 6h-8l-2-2H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm0 12H4V6h5.17l2 2H20v10zm-8-4h2v2h2v-2h2v-2h-2v-2h-2v2h-2z"></path>
           </svg></div>
-        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Create folder</div>
+        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Tạo thư mục mới</div>
       </div>
     </li>
   </ul>
+  <!-- context file sub menu -->
+  <div id="context-file-sub-menu" class="z-popover isolate " role="presentation" style="--be-viewport-height: 421px; --be-viewport-width: 1872px; opacity: 1; transform: none; max-height: 379px; display:none"><span data-focus-scope-start="true" hidden=""></span>
+    <div class="text-base sm:text-sm outline-none bg-paper max-h-inherit flex flex-col shadow-xl border  rounded max-w-288 min-w-180" role="presentation">
+      <div tabindex="-1" role="menu" id=":r1g:-listbox" class="flex-auto overflow-y-auto overscroll-contain">
+
+        <div id=":r1g:-listbox-3" role="button" tabindex="0" aria-selected="false" data-value="addToStarred" class="w-full select-none outline-none cursor-pointer py-8 text-sm truncate flex items-center gap-10 text-main px-20 hover:bg-hover">
+          <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="StarOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
+              <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z"></path>
+            </svg></div>
+          <div class="mr-auto w-full">Gán sao</div>
+        </div>
+
+        <div id=":r1g:-listbox-5" data-toggle="modal" data-target="#modalRename" role="button" tabindex="0" aria-selected="false" data-value="rename" class="w-full select-none outline-none cursor-pointer py-8 text-sm truncate flex items-center gap-10 text-main px-20 hover:bg-hover">
+          <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="DriveFileRenameOutlineOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
+              <path d="m15 16-4 4h10v-4zm-2.94-8.81L3 16.25V20h3.75l9.06-9.06-3.75-3.75zM5.92 18H5v-.92l7.06-7.06.92.92L5.92 18zm12.79-9.96c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+            </svg></div>
+          <div class="mr-auto w-full">Đổi tên</div>
+        </div>
+
+        <div id=":r1g:-listbox-8" role="button" tabindex="-1" aria-selected="false" data-value="delete" class="w-full select-none outline-none cursor-pointer py-8 text-sm truncate flex items-center gap-10 text-main px-20 hover:bg-fg-base/15 ">
+          <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="DeleteOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
+              <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"></path>
+            </svg></div>
+          <div class="mr-auto w-full">Xoá</div>
+        </div>
+        <div id=":r4m:-listbox-3" role="button" tabindex="0" aria-selected="false" data-value="restore" class="w-full select-none outline-none cursor-pointer py-8 text-sm truncate flex items-center gap-10 text-main px-20 hover:bg-hover">
+          <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="RestoreOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
+              <path d="M13 3c-4.97 0-9 4.03-9 9H1l4 3.99L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8z"></path>
+            </svg></div>
+          <div class="mr-auto w-full">Khôi phục</div>
+        </div>
+      </div>
+    </div><span data-focus-scope-end="true" hidden=""></span>
+  </div>
+  <script>
+    var user = {
+      email: "<?php echo $email; ?>",
+      password: "<?php echo $password; ?>",
+      "token_name": "iphone 12"
+    }
+  </script>
+
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-  <script src="./js/blankScreen.component.js"></script>
+
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+  <script src="./js/blankScreen.component.js"></script>
+  <script type="text/javascript" src="./js/getIcon.js"></script>
 
   <script type="text/javascript" src="./js/selectFile.js"></script>
 </body>

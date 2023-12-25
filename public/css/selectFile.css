@@ -55,3 +55,43 @@ li:focus {
   top: -6px;
   left: 110%;
 }
+#leftNav.collapse {
+  visibility: visible !important;
+} 
+@media screen and ( min-width: 1024px) {
+  #openLeftNav{
+   visibility: hidden;
+  }
+  #leftNav{
+    display: flex;
+  }
+ 
+}
+@media screen and ( max-width: 768px ) {
+  /* #openLeftNav{
+   visibility: visible
+  } */
+  #root > div.relative.isolate.dashboard-grid.h-screen > div.flex.items-center.justify-end.gap-10.pl-14.pr-8.md\:pl-20.md\:pr-20.bg-primary.text-on-primary.border-b-primary.h-54.border-b.dashboard-grid-navbar > a{
+    margin: 0 !important;
+  }
+  #root > div.relative.isolate.dashboard-grid.h-screen > div.flex.items-center.justify-end.gap-10.pl-14.pr-8.md\:pl-20.md\:pr-20.bg-primary.text-on-primary.border-b-primary.h-54.border-b.dashboard-grid-navbar > form{
+    display: none;
+  }
+
+  #leftNav:not(.show) {
+    display: none !important ;
+}
+  #leftNav.show  {
+  display: block !important;
+ }
+ #leftNav.show + div {
+  opacity: 0%;
+}
+#leftNav.show + div +div {
+  opacity: 10%;
+}
+#pathEntry > li > div >  button {
+  font-size: 15px;
+}
+
+}
