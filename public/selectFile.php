@@ -174,7 +174,7 @@ $password = isset($_REQUEST['password']) ? $_REQUEST['password'] : "1223";
       </div>
       <div class="px-8 md:px-26  flex items-center gap-20 border-b h-60 dashboard-grid-header">
         <div class="w-full min-w-0" aria-label="Breadcrumbs">
-          <ol style="margin-top:1rem" class="flex flex-wrap justify-start min-h-42" id="pathEntry">
+          <ol style="margin-top:1rem;    overflow-x: scroll;" class="flex justify-start min-h-42" id="pathEntry">
             <li id="null" folderName='Tất cả Files' class="relative inline-flex min-w-0 flex-shrink-0 items-center justify-start text-lg" onclick="clickPath(null,'Tất cả File')">
               <div class="cursor-pointer overflow-hidden whitespace-nowrap rounded px-8 py-4 ">
                 <button type="button" data-toggle="dropdown" class=" hover:bg-hover focus-visible:ring whitespace-nowrap inline-flex select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default justify-center flex items-center gap-2 rounded focus-visible:ring-offset-4" id=":re:" aria-expanded="false" aria-haspopup="menu">
@@ -217,13 +217,7 @@ $password = isset($_REQUEST['password']) ? $_REQUEST['password'] : "1223";
       </div>
       <div class="relative outline-none overflow-y-auto stable-scrollbar dashboard-grid-content" tabindex="-1">
         <div class="relative flex min-h-full flex-col pt-10">
-          <div class="my-10 flex min-h-42 items-center justify-between gap-40 px-10 text-muted md:px-18">
-            <button type="button" class="focus-visible:ring bg-transparent border-transparent hover:bg-hover disabled:text-disabled disabled:bg-transparent whitespace-nowrap inline-flex align-middle flex-shrink-0 items-center transition-button duration-200 select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default rounded justify-center font-semibold text-sm h-36 px-18 text-muted" id=":rg:" aria-expanded="false" aria-haspopup="menu">
-              <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="SortOutlinedIcon" class="svg-icon m-auto -ml-4 mr-8 icon-sm" height="1em" width="1em">
-                <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"></path>
-              </svg>Last modified
-            </button>
-          </div>
+          
           <div class="border-0 relative flex-auto px-18 pb-18 md:px-24 " id="ariaClick">
 
             <div id="loading" class="d-none">
@@ -387,6 +381,7 @@ $password = isset($_REQUEST['password']) ? $_REQUEST['password'] : "1223";
     </div><span data-focus-scope-end="true" hidden=""></span>
   </div>
   <script>
+    // document.domain="edusoft.vn"
     var user = {
       email: "<?php echo $email; ?>",
       password: "<?php echo $password; ?>",

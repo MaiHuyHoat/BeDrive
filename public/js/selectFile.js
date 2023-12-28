@@ -1,6 +1,6 @@
 
 
-var access_token=null;
+var access_token=null ;
 var server='http://localhost/Bedrive';
 var currentSelectedFileId=null;
 var currentFolder=null;
@@ -8,15 +8,25 @@ var mode = 'all';
 var screenWidth= screen.width;
 
 // hàm load data ban đầu cho dom 
-document.addEventListener('DOMContentLoaded',()=>{
-  setAccessToken(user);
-  var  params={
-    perPage:50,
-    workspaceId:0,
-    parentIds:[null]
- }
- fileEntries(params,true)
- setClickSideBar();
+document.addEventListener('DOMContentLoaded',async ()=>{
+ 
+    // Sử dụng async/await để chờ lấy access_token
+    try {
+      // Thực hiện hàm getAccessToken để lấy access_token
+      access_token = await getAccessToken(user);
+
+      // Sau khi có access_token, thực hiện các công việc khác
+      var params = {
+          perPage: 50,
+          workspaceId: 0,
+          parentIds: [null]
+      };
+
+      fileEntries(params, true);
+      setClickSideBar();
+  } catch (error) {
+      console.error('Failed to get access_token:', error);
+  }
 
 })
 // hàm thiết lập sự kiện trao đổi với trang cha chứa iframe
@@ -61,30 +71,26 @@ document.querySelector("#ariaClick").addEventListener('contextmenu',(event)=>{
 
 
 // lấy access token cho người dùng 
-function setAccessToken(user){
-  var myHeader= new Headers();
-  myHeader.append("Content-type","application/json")
-  fetch(`${server}/api/v1/auth/login`,{
-      method: "post",
-      headers: myHeader, 
-     
-      body:JSON.stringify({
-          "email": user.email,
-          "password": user.password,
-          "token_name": user.token_name
-        })
-  }).then(res=>{
-     
-      return res.json()
-  })
-  .then(data=>{
-    
-        access_token=data.user.access_token
-     
-  })
-  .catch(err=>{
-      console.log("Lỗi login tài khoản người dùng : "+err)
-  })
+// Hàm lấy access token cho người dùng
+async function getAccessToken(user) {
+  try {
+      var myHeader = new Headers();
+      myHeader.append('Content-type', 'application/json');
+      var res = await fetch(`${server}/api/v1/auth/login`, {
+          method: 'post',
+          headers: myHeader,
+          body: JSON.stringify({
+              email: user.email,
+              password: user.password,
+              token_name: user.token_name
+          })
+      });
+      var data = await res.json();
+      return data.user.access_token;
+  } catch (err) {
+      console.log('Lỗi login tài khoản người dùng:', err);
+      throw err; // Nếu có lỗi, chuyển tiếp lỗi để xử lý ở phần catch khi gọi hàm này
+  }
 }
 function setClickSideBar(){
  var aAll= document.querySelector('div[data-menu-item-id="dkj424"]')
@@ -218,11 +224,15 @@ async function sendFileToWindowParent(id){
   var data=await getShareableLink(id);
   if(data.link===null) data=await createShareableLink(id);
   var hashFile= data.link.hash;
- 
-  var path=`${server}/drive/s/${hashFile}`;
+  var dataReturn={
+     "file": data,
+     "url":`${server}/drive/s/${hashFile}`
+  }
+ console.log(dataReturn)
+  // var path=`${server}/drive/s/${hashFile}`;
   
   // swal(`Link file/ tài liệu để thêm vào lớp :\n${path}`);
-   window.parent.postMessage(path,"*")
+   window.parent.postMessage(JSON.stringify(dataReturn),"*")
 }
 
 function handleContextMenu(event,id,name) {
@@ -307,6 +317,12 @@ function clickEntry(item,id,name){
 // hàm xử lý sự kiện khi có người doubleclick vào một entry
 async function doubleClickEntry(item){
   var id= item.id;
+  var data=await getShareableLink(id);
+  if(data.link===null) data=await createShareableLink(id);
+  var hashFile= data.link.hash;
+ 
+  var path=`${server}/drive/s/${hashFile}`;
+    // swal(`Link file/ tài liệu để thêm vào lớp :\n${path}`);
   sendFileToWindowParent(id)
 }
 // hàm lấy link chia sẽ file 
@@ -341,8 +357,7 @@ async function getShareableLink(entryId){
     method:'post',
     headers: myHeader,
     body:JSON.stringify({
-      "password": "new password",
-      "expires_at": "string",
+      "expires_at": null,
       "allow_edit": false,
       "allow_download": true
     })
