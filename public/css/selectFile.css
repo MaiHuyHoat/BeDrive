@@ -29,26 +29,23 @@ li:active,
 li:focus {
   outline: none !important; /* Loại bỏ đường viền khi kích hoạt hoặc focus */
 }
-#loading{
-  
-  display: block;
-}
-#loading #onLoadingImage{
+ .loadingContent .onLoadingImage{
    display: inline-block;
- margin:10% 48% 0;
+ margin:20% 48% 0;
 }
-#loading #onLoadingImage img{
+.loadingContent .onLoadingImage img{
   width: 80px;
 
 }
-#loading > figure > figcaption .text{
+
+.loadingContent  .text {
   font-size: 20px;
   font-weight: bold;
   color: #3281e7;
   display: inline;
   position: relative;
 }
-#loading > figure > figcaption > div > div{
+.loadingContent .icon-dot-loading{
  
   display: inline;
   position: absolute;
@@ -58,6 +55,23 @@ li:focus {
 #leftNav.collapse {
   visibility: visible !important;
 } 
+.truncate-text {
+  width: 120px; /* Đặt chiều rộng tùy ý */
+  white-space: nowrap; /* Ngăn chặn xuống dòng */
+  overflow: hidden; /* Ẩn phần vượt quá chiều rộng */
+  text-overflow: ellipsis; /* Hiển thị dấu "..." */
+  text-align: start;
+}
+#loadingContent{
+  
+}
+.collapse.show {
+  display: block!important ;
+  visibility: visible;
+}
+.collapse:not(.show){
+  display: none !important ;
+}
 @media screen and ( min-width: 1024px) {
   #openLeftNav{
    visibility: hidden;

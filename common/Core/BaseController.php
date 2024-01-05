@@ -39,6 +39,7 @@ class BaseController extends Controller
                 $ability,
                 $arguments,
             );
+          
             return app(Gate::class)->authorize($ability, $arguments);
         } else {
             $guest = new User();

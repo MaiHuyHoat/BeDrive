@@ -21,7 +21,7 @@ class FileEntriesController extends BaseController
         protected Request $request,
         protected FileEntry $entry,
     ) {
-        $this->middleware('auth')->only(['index']);
+        $this->middleware('auth');
     }
 
     public function index()
@@ -42,6 +42,7 @@ class FileEntriesController extends BaseController
 
         return $this->success(['pagination' => $pagination]);
     }
+    
 
     public function show(FileEntry $fileEntry, FileResponseFactory $response)
     {
@@ -52,6 +53,16 @@ class FileEntriesController extends BaseController
         } catch (FileNotFoundException $e) {
             abort(404);
         }
+    }
+    // lấy toàn bộ file của người dùng 
+    public function showAll(){
+        
+            $id = Auth::id();
+        
+        
+        $dataSource = $this->entry::where('owner_id',$id)->get();
+        return $this->success([ 'fileEntry' => $dataSource] ,200);
+
     }
 
     public function showModel(FileEntry $fileEntry)

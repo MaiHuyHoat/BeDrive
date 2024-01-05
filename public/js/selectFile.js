@@ -1,48 +1,64 @@
-
-
 var access_token=null ;
+var userId=null;
+// server bedrive hiện tại 
 var server='http://localhost/Bedrive';
+// id của file người dùng vửa nhấn chọn để gửi link share về document.parent
 var currentSelectedFileId=null;
+// id của folder hiện tại người dùng đang ơr 
 var currentFolder=null;
+// chế độ người dùng chọn : all, share, delete
 var mode = 'all';
+// độ rộng màn hình hiển thị của thiết bị 
 var screenWidth= screen.width;
-
+// danh sách các folder có trong cơ sở dữ liệu của người dùng
+var listFolder=[]
+// local data người dùng 
+var localData=[]
 // hàm load data ban đầu cho dom 
 document.addEventListener('DOMContentLoaded',async ()=>{
  
     // Sử dụng async/await để chờ lấy access_token
     try {
       // Thực hiện hàm getAccessToken để lấy access_token
-      access_token = await getAccessToken(user);
-
+      var userData = await getAccessToken(user);
+      access_token= userData.access_token
+      userId=  userData.id
       // Sau khi có access_token, thực hiện các công việc khác
       var params = {
           perPage: 50,
           workspaceId: 0,
           parentIds: [null]
       };
-
       fileEntries(params, true);
+      // lấy dung lượng bộ nhớ của người dùng 
+      getSpaceUsed()
+      await getListFolder([null])
+       loadSubFolderNavLeft(null,0);
+     displayContent()
+      // set up các sự kiện cho click sidebar
       setClickSideBar();
+     // lấy data và set gợi ý tìm kiếm cho ô input
+    await  getAllData();
+    setSuggestionSearchInput()
+     
   } catch (error) {
       console.error('Failed to get access_token:', error);
   }
-
+  
 })
 // hàm thiết lập sự kiện trao đổi với trang cha chứa iframe
 window.addEventListener("message",(event)=>{
   switch(event.data){
     case "getFile":{
        if(currentSelectedFileId===null){
-           window.parent.postMessage("Not choose file")
+			window.parent.postMessage("Not choose file")
        }else{
-        sendFileToWindowParent(currentSelectedFileId)
+			sendFileToWindowParent(currentSelectedFileId)
        }
       break;
     }
   }
 })
-
 // hàm xoá context bar khi người dùng click vào khoảng trống 
 document.addEventListener("click", function() {
   var contextMenu = document.getElementById("contextMenu");
@@ -66,10 +82,7 @@ document.querySelector("#ariaClick").addEventListener('contextmenu',(event)=>{
   contextmenu.style.top= mouseY+ "px"
   contextmenu.style.left= mouseX+ "px"
   }
-
 })
-
-
 // lấy access token cho người dùng 
 // Hàm lấy access token cho người dùng
 async function getAccessToken(user) {
@@ -86,7 +99,8 @@ async function getAccessToken(user) {
           })
       });
       var data = await res.json();
-      return data.user.access_token;
+      
+      return data.user;
   } catch (err) {
       console.log('Lỗi login tài khoản người dùng:', err);
       throw err; // Nếu có lỗi, chuyển tiếp lỗi để xử lý ở phần catch khi gọi hàm này
@@ -103,37 +117,63 @@ function setClickSideBar(){
     event.preventDefault();
     setMode('all');
     setItemSidebarUI(aAll)
-    console.log(mode)
+    var  params={
+      perPage:50,
+      workspaceId:0,
+      parentIds:[null]
+   }
+   fileEntries(params,true)
   })
   aShare.addEventListener('click',(event)=>{
     event.preventDefault();
     setItemSidebarUI(aShare)
      setMode('share');
-     console.log(mode)
+     var  params={
+      perPage:50,
+      workspaceId:0,
+      parentIds:[null]
+   }
+   fileEntries(params,true)
   })
   aRecent.addEventListener('click',(event)=>{
     event.preventDefault();
     setItemSidebarUI(aRecent)
      setMode('recent');
-     console.log(mode)
+     var  params={
+      perPage:50,
+      workspaceId:0,
+      parentIds:[null]
+   }
+   fileEntries(params,true)
   })
   
   aStar.addEventListener('click',(event)=>{
     event.preventDefault();
     setItemSidebarUI(aStar)
      setMode('star');
-     console.log(mode)
+     var  params={
+      perPage:50,
+      workspaceId:0,
+      parentIds:[null]
+   }
+   fileEntries(params,true)
   })
   aTrash.addEventListener('click',(event)=>{
     event.preventDefault();
     setItemSidebarUI(aTrash)
      setMode('deleted');
-     console.log(mode)
+     var  params={
+      perPage:50,
+      workspaceId:0,
+      parentIds:[null]
+   }
+   fileEntries(params,true)
   })
 }
 // hàm cài đặt chế độ all file, share file, deleted file,...
 function setMode(modeSet) {
   mode=modeSet;
+  currentFolder=null
   var autoClickClosePopup= (document.querySelector("#root > div.relative.isolate.dashboard-grid.h-screen > div.flex.items-center.justify-end.gap-10.pl-14.pr-8.md\\:pl-20.md\\:pr-20.bg-primary.text-on-primary.border-b-primary.h-54.border-b.dashboard-grid-navbar > form").style)?true:false;
   console.log(autoClickClosePopup)
   var olPath=document.querySelector("#pathEntry");
@@ -144,41 +184,114 @@ function setMode(modeSet) {
       liItems[i].remove();
     }
   }
-  var buttonAction=document.querySelector("#\\:r5\\:");
+  
   var spanModeSet= document.getElementById("mode-set");
    switch(mode){
     case "share":{
       spanModeSet.innerHTML="Chia sẻ với tôi "
       
-      buttonAction.disabled=true;
+     
       break;
     }
     case "deleted":{
       spanModeSet.innerHTML="Đã xoá "
-      buttonAction.disabled=true;
+     
       break;
     }
     case "recent":{
       spanModeSet.innerHTML="Gần đây"
-      buttonAction.disabled=true;
+      
     }
     case "star":{
       spanModeSet.innerHTML="Gán sao "
-      buttonAction.disabled=true;
+     
       break;
     }
     default:{
       spanModeSet.innerHTML="Tất cả File"
-      buttonAction.disabled=false;
+     
       break;
     }
    }
-  var  params={
-    perPage:50,
-    workspaceId:0,
-    parentIds:[null]
- }
- fileEntries(params,true)
+  
+}
+// hàm cài đặt gợi ý tìm kiếm cho người dùng, khi người đùng nhập vào ô tìm kiếm
+function setSuggestionSearchInput(){
+  $( function() {
+    var listEntries= Array.from(localData.fileEntry)
+    var availableSearch= listEntries.map(entry=>{
+      return entry.name;
+    })
+    $( "#search" ).autocomplete({
+      source: availableSearch,
+      select: function(event,ui){
+        var selectedItem= ui.item.value;
+        performSearch(selectedItem)
+      }
+
+    });
+  } );
+}
+// hàm tìm kiếm khi người dùng nhất nút submit
+function searchEntries(event){
+   event.preventDefault()
+   var inputSearch= document.getElementById("search")
+   var searchValue= inputSearch.value
+   performSearch(searchValue)
+   inputSearch.value=""
+   inputSearch.setAttribute("placeholder",`Kết quả tìm kiếm cho : ${searchValue}`)
+   setTimeout(() => {
+    inputSearch.setAttribute("placeholder",`Nhập để tìm kiếm `)
+   }, 5000);
+}
+// hàm tìm kiếm và hiển thị kết quả
+function performSearch(query){
+  var olPath=document.querySelector("#pathEntry");
+   // lấy danh sách đường dẫn hiện tại đang hiển thị 
+   var liItems=olPath.querySelectorAll("#pathEntry>li");
+    // xoá hết đường dẫn ngoại trừ phần tử đầu tiên
+    for(var i=1;i<liItems.length;i++)liItems[i].remove()
+    var lastLiItem= document.createElement("li");
+    lastLiItem.setAttribute("class","relative inline-flex min-w-0 flex-shrink-0 items-center justify-start text-lg");
+    lastLiItem.innerHTML=` <div class="cursor-pointer overflow-hidden whitespace-nowrap rounded px-8 py-4 ">
+    <button  type="button"  class=" hover:bg-hover focus-visible:ring whitespace-nowrap inline-flex select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default justify-center flex items-center gap-2 rounded focus-visible:ring-offset-4" >
+       Kết quả tìm kiếm
+       <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ArrowDropDownOutlinedIcon" class="svg-icon icon-md text-muted icon-md" height="1em" width="1em">
+       <path d="m7 10 5 5 5-5H7z"></path>
+     </svg>
+    </button>
+   
+  </div>`  
+  olPath.appendChild(lastLiItem) 
+  var param= {
+        query:query
+      }
+    var pathParams=""
+    for(var key in param){
+        if(param.hasOwnProperty(key)){
+           if(param[key]!==null)  pathParams+=`&${key}=${param[key]}`
+        }
+    }
+    var myHeader= new Headers();
+    myHeader.append("accept","application/json")
+     myHeader.append("Content-type","application/json")
+     myHeader.append("Authorization",`Bearer ${access_token}`)
+    fetch(`${server}/api/v1/drive/file-entries?${pathParams}`,{
+        method:'get',
+        headers:myHeader
+    }).then(res=>res.json())
+    .then(data=>{
+        // Xử lý dữ liệu với data
+       
+         displaySearch(data)
+    })
+    .catch(err=>{
+        console.log("Lỗi lấy file : "+err)
+    })
+}
+function displaySearch(data){
+  displayData(data)
+  
 }
 function setItemSidebarUI(itemClick){
   var aAll= document.querySelector('div[data-menu-item-id="dkj424"]')
@@ -187,7 +300,6 @@ function setItemSidebarUI(itemClick){
   var aStar= document.querySelector('a[data-menu-item-id="4e6cie"]');
   var aTrash= document.querySelector('a[data-menu-item-id="h5p54n"]');
   var listA= [];
-
   listA.push(aAll);listA.push(aShare);listA.push(aRecent);listA.push(aStar);listA.push(aTrash);
   listA.forEach(element=>{
     element.classList.remove('bg-primary/selected')
@@ -201,7 +313,6 @@ function setItemSidebarUI(itemClick){
   if(itemClick.getAttribute("data-menu-item-id")!=="dkj424")  itemClick.classList.remove("text-secondary")
   itemClick.classList.add('font-bold');
   
-
 }
 // hàm ẩn context sub menu
 function hideContextMenu(){
@@ -219,6 +330,15 @@ function hideContextMenu(){
   
   document.removeEventListener('click',hideContextMenu)
 }
+// hàm hiện thị sau khi đã load xong toàn bộ content, dữ liệu của người dùng 
+function displayContent(){
+  var divLoadingContent= document.getElementById("loadingPage");
+  divLoadingContent.classList.remove("d-block");
+  divLoadingContent.classList.add("d-none")
+  var divRoot= document.getElementById("root");
+  divRoot.classList.remove("d-none");
+
+}
 // hàm gửi file entry đã cho cho phía trang cha
 async function sendFileToWindowParent(id){
   var data=await getShareableLink(id);
@@ -228,17 +348,39 @@ async function sendFileToWindowParent(id){
      "file": data,
      "url":`${server}/drive/s/${hashFile}`
   }
- console.log(dataReturn)
+ 
   // var path=`${server}/drive/s/${hashFile}`;
   
-  // swal(`Link file/ tài liệu để thêm vào lớp :\n${path}`);
-   window.parent.postMessage(JSON.stringify(dataReturn),"*")
+  // swal(`Link file/ t�i li?u �? th�m v�o l?p :\n${path}`);
+   window.parent.postMessage(JSON.stringify(dataReturn),"*") 
+   /*var funcNum = getUrlParam( 'CKEditorFuncNum' );
+	var fileUrl = path;
+	window.opener.CKEDITOR.tools.callFunction( funcNum, fileUrl );
+	window.close();*/
 }
-
+// hàm xử lý click xoá file 
+function handleClickDeleteEntry(id){
+  if(mode==='deleted'){
+    swal({
+      title: "Bạn có chắc?",
+      text: "Hành động này sẽ xoá vĩnh viễn file !",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        deleteEntryApi([id],true)
+      } 
+    });
+  }else{
+    deleteEntryApi([id],false)
+  }
+}
+// hàm xử lý ssubmenu context
 function handleContextMenu(event,id,name) {
   event.preventDefault();
   var mouseX = event.clientX;
-
   var mouseY = event.clientY;
   var contextmenu = document.getElementById('context-file-sub-menu');
   contextmenu.style.display = 'block';
@@ -249,53 +391,42 @@ function handleContextMenu(event,id,name) {
   document.addEventListener('click', hideContextMenu );
   // thêm sự kiện click xoá cho contextMenu
   var buttonRemove=document.querySelector("#\\:r1g\\:-listbox-8");
-  buttonRemove.addEventListener('click',(event)=>{
-    if(mode==='deleted'){
-      swal({
-        title: "Bạn có chắc?",
-        text: "Hành động này sẽ xoá vĩnh viễn file !",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-      })
-      .then((willDelete) => {
-        if (willDelete) {
-          deleteEntryApi([id],true)
-        } 
-      });
-    }else{
-      deleteEntryApi([id],false)
-    }
- 
-  })
+  buttonRemove.setAttribute("onclick",`handleClickDeleteEntry(${id})`)
  // thêm sự kiện đổi tên file cho contextMenu
  var buttonRename= document.querySelector("#\\:r1g\\:-listbox-5")
- buttonRename.addEventListener('click',()=>{
-  var inputName= document.querySelector("#name-new-entry")
-  inputName.value= name
-  var saveButton=document.querySelector("#modalRename > div > div > div.modal-footer > button.btn.btn-primary")
-  saveButton.addEventListener('click',()=>{
-    renameEntry(id,name)
-  })
- })
+ if(mode!=="deleted"){
+  buttonRename.classList.remove('d-none')
+  buttonRename.addEventListener('click',()=>{
+    var inputName= document.querySelector("#name-new-entry")
+    inputName.value= name
+    var saveButton=document.querySelector("#modalRename > div > div > div.modal-footer > button.btn.btn-primary")
+     saveButton.setAttribute("onclick",`renameEntry(${id},'${name}')`)
+   })
+ }else{
+   buttonRename.classList.add('d-none')
+ }
+ 
  // thêm nút khôi phục file nếu đang ở chế độ xoá và set hàm cho nó 
  var restoreButton=document.querySelector("#\\:r4m\\:-listbox-3")
    if(mode!=="deleted"){
     restoreButton.classList.add('d-none')
    }else{
     restoreButton.classList.remove('d-none')
-    restoreButton.addEventListener('click',()=>{
-      restoreFileApi(id)
-    })
+    restoreButton.setAttribute("onclick",`  restoreFileApi( ${id})`)
+   
    }
   // thêm sự kiện cho nút gán sao
   var starButton=document.querySelector("#\\:r1g\\:-listbox-3");
-  starButton.addEventListener('click',()=>{
-    starFileApi(id)
-  })
+  if(mode!=="deleted"){
+    starButton.classList.remove('d-none')
+    starButton.setAttribute("onclick",`starFileApi(${id})`)
+  }else{
+   starButton.classList.add("d-none")
+  }
+  
+  
  
 }
-
 // hàm xử lý sự kiện khi có người click vào một entry
 function clickEntry(item,id,name){
   currentSelectedFileId=id;
@@ -317,12 +448,6 @@ function clickEntry(item,id,name){
 // hàm xử lý sự kiện khi có người doubleclick vào một entry
 async function doubleClickEntry(item){
   var id= item.id;
-  var data=await getShareableLink(id);
-  if(data.link===null) data=await createShareableLink(id);
-  var hashFile= data.link.hash;
- 
-  var path=`${server}/drive/s/${hashFile}`;
-    // swal(`Link file/ tài liệu để thêm vào lớp :\n${path}`);
   sendFileToWindowParent(id)
 }
 // hàm lấy link chia sẽ file 
@@ -339,7 +464,6 @@ async function getShareableLink(entryId){
   .then(async data=>{
       // Xử lý dữ liệu với data
    dataLink=data;
-
   })
   .catch(err=>{
       console.log("Lỗi lấy link file  chia sẻ : "+err)
@@ -357,6 +481,7 @@ async function getShareableLink(entryId){
     method:'post',
     headers: myHeader,
     body:JSON.stringify({
+    
       "expires_at": null,
       "allow_edit": false,
       "allow_download": true
@@ -367,9 +492,8 @@ async function getShareableLink(entryId){
   }).catch(err=>{console.log("Lỗi lấy data Shareable Link: "+err)})
   return dataLink;
  }
-
 // hàm lấy các file của account người dùng
-function fileEntries(paramInput,hide){
+async function fileEntries(paramInput,hide){
     // params là một object các điều kiện lọc truyền vào , điều kiện nào không cần thì không thêm vào object
     // param= {
     //     perPage: number;  -> có bao nhiêu mục/file trong page muốn lấy
@@ -421,8 +545,35 @@ function fileEntries(paramInput,hide){
         console.log("Lỗi lấy file : "+err)
     })
 }
+// hàm lấy toàn bộ dữ liệu và chạy ngầm để set cho biên local variable  để gợi ý  tìm kiếm 
+async function getAllData(){
+  try {
+ 
+    var myHeader= new Headers();
+    myHeader.append("accept","application/json")
+     myHeader.append("Content-type","application/json")
+     myHeader.append("Authorization",`Bearer ${access_token}`)
+    //  file-entries?${pathParams}
+   var response= await fetch(`${server}/api/v1/file-entries-all`,{
+        method:'get',
+        headers:myHeader
+    })
+     dataReturn = await response.json();
+     // set up local data cho việc gợi ý tìm kiếm 
+     localData= dataReturn
+} catch (error) {
+    console.error("Lỗi không lấy được danh sách file entry: "+error)
+}
+}
 // clickfile vào folder file 
-function loadEntriesInfolder(id,name){
+function loadEntriesInfolder(id){
+  
+  if(mode==="deleted"){
+    swal("Không thể truy cập được folder ở chế độ xoá ! ");
+    return;
+  }else {
+     setMode('all')
+  }
   currentFolder=id
  var params= {
     perPage:50,
@@ -431,107 +582,80 @@ function loadEntriesInfolder(id,name){
  }
   
   var olPath=document.querySelector("#pathEntry");
- 
-  var liItems=olPath.querySelectorAll("#pathEntry>li");
-  
-  if(liItems.length>0){
-    for (var i = 0; i < liItems.length; i++) {
-      var liItem = liItems[i];
+  var linkListPath=[]
+  var findFolder= listFolder.find(entry=>{
+    return entry.id===id
+  })
+  if(!findFolder){
+    // không tìm thấy thì là người dùng đang truy cập vào thư mục gốc
+    olPath.innerHTML=`<li  class="relative inline-flex min-w-0 flex-shrink-0 items-center justify-start text-lg" >
+    <div class="cursor-pointer overflow-hidden whitespace-nowrap rounded px-8 py-4 ">
+      <button onclick="loadEntriesInfolder(null)" type="button"  class=" hover:bg-hover focus-visible:ring whitespace-nowrap inline-flex select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default justify-center flex items-center gap-2 rounded focus-visible:ring-offset-4" >
+        <span id="mode-set">Tất cả File</span>
+        <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ArrowDropDownOutlinedIcon" class="svg-icon icon-md text-muted icon-md" height="1em" width="1em">
+          <path d="m7 10 5 5 5-5H7z"></path>
+        </svg>
+      </button>
      
-        // xoá drop menu và icon arrow bottom
-        var buttonItem = liItem.querySelector('div > button');
-        if (buttonItem) {
-          buttonItem.removeAttribute('data-toggle');
-          buttonItem.removeAttribute('aria-expanded');
-          buttonItem.removeAttribute('aria-haspopup');
-        }
-        var svgItem = liItem.querySelector('div > button > svg ');
-        if (svgItem) svgItem.parentNode.removeChild(svgItem);
-        var ulMenu = liItem.querySelector('ul.dropdown-menu');
-        if (ulMenu) ulMenu.parentNode.removeChild(ulMenu);
-        liItem.setAttribute('onclick',`clickPath(${liItem.id},'${liItem.getAttribute('foldername')}')`)
-      
-    }
-    var lastItem=liItems[liItems.length-1];
-    var lastChild=lastItem.lastChild;
+    </div>
+  </li>`
+  }else{
+      var interatorFolder= findFolder
    
-    if(!(lastChild.nodeType === 1 && lastChild.tagName.toLowerCase() === 'svg')){
+      // lấy danh sách link list đường dẫn đến  folder hiện tại  với head là folder click , last item là root folder với id là null 
+      while(interatorFolder){
+      
+        linkListPath.push(interatorFolder)
+       interatorFolder=listFolder.find(entry=>{
+         
+          return entry.id===interatorFolder.parent_id
+        }) 
+      }
+     // lấy danh sách đường dẫn hiện tại đang hiển thị 
+     var liItems=olPath.querySelectorAll("#pathEntry>li");
+     // tạo icon right arrow cho các entry folder
      var svgArrowRightIcon= document.createElement("svg");
    
      var contentArrowRightIcon=`<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ChevronRightOutlinedIcon" class="svg-icon text-muted icon-md" height="1em" width="1em"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"></path></svg>`;
      svgArrowRightIcon.innerHTML=contentArrowRightIcon
-     lastItem.appendChild(svgArrowRightIcon);
+     // thay đổi icon bottom icon của phần tử đầu tiên thành right icon arrow
+     var firstItem=liItems[0]
+     firstItem.querySelector('svg ').remove();
+     firstItem.appendChild(svgArrowRightIcon)
+     // xoá hết đường dẫn ngoại trừ phần tử đầu tiên
+    for(var i=1;i<liItems.length;i++)liItems[i].remove()
+    // hiển thị đường dẫn  cho các parent entry đến folder chỉ định
+    for(var i= linkListPath.length-1;i>0;i--){
+       var entry= linkListPath[i]
+        var liItem= document.createElement("li");
+           liItem.setAttribute("class","relative inline-flex min-w-0 flex-shrink-0 items-center justify-start text-lg");
+           liItem.innerHTML=` <div class="cursor-pointer overflow-hidden whitespace-nowrap rounded px-8 py-4 ">
+           <button onclick="loadEntriesInfolder(${entry.id})" type="button"  class=" hover:bg-hover focus-visible:ring whitespace-nowrap inline-flex select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default justify-center flex items-center gap-2 rounded focus-visible:ring-offset-4" >
+              ${entry.name}
+           </button>
+           <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ChevronRightOutlinedIcon" class="svg-icon text-muted icon-md" height="1em" width="1em"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"></path></svg>
+         </div>`
+      olPath.appendChild(liItem)
     }
-  }
-  // tạo folder , drop-toggle menu cho item cuối cùng, tức item người dùng click vào 
-  var liItem= document.createElement("li");
-  liItem.id=id;
-
-  liItem.setAttribute('foldername',name);
-  liItem.setAttribute("class","relative inline-flex min-w-0 flex-shrink-0 items-center justify-start text-lg");
-  
-  liItem.innerHTML=`   <div class="cursor-pointer overflow-hidden whitespace-nowrap rounded px-8 py-4 ">
-  <button type="button" data-toggle="dropdown" class=" hover:bg-hover focus-visible:ring whitespace-nowrap inline-flex select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default justify-center flex items-center gap-2 rounded focus-visible:ring-offset-4" id=":re:" aria-expanded="false" aria-haspopup="menu">
-   ${id===null?`<span id="mode-set"> ${name}</span>`: name}
-    <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ArrowDropDownOutlinedIcon" class="svg-icon icon-md text-muted icon-md" height="1em" width="1em">
+   // hiển thị cho folder cuối cùng 
+   var lastLiItem= document.createElement("li");
+   lastLiItem.setAttribute("class","relative inline-flex min-w-0 flex-shrink-0 items-center justify-start text-lg");
+   lastLiItem.innerHTML=` <div class="cursor-pointer overflow-hidden whitespace-nowrap rounded px-8 py-4 ">
+   <button onclick="loadEntriesInfolder(${linkListPath[0].id})" type="button"  class=" hover:bg-hover focus-visible:ring whitespace-nowrap inline-flex select-none appearance-none no-underline outline-none disabled:pointer-events-none disabled:cursor-default justify-center flex items-center gap-2 rounded focus-visible:ring-offset-4" >
+      ${linkListPath[0].name}
+      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="ArrowDropDownOutlinedIcon" class="svg-icon icon-md text-muted icon-md" height="1em" width="1em">
       <path d="m7 10 5 5 5-5H7z"></path>
     </svg>
-  </button>
-  <ul class="dropdown-menu">
-    <li>
-      <div class="dropdown-item d-flex btn" role="button">
-        <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="UploadFileOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
-            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11 8 15.01z"></path>
-          </svg></div>
-        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Upload files</div>
-      </div>
-    </li>
-    <li>
-      <div class="dropdown-item d-flex btn" role="button">
-        <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="DriveFolderUploadOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
-            <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10zM9.41 14.42 11 12.84V17h2v-4.16l1.59 1.59L16 13.01 12.01 9 8 13.01l1.41 1.41z"></path>
-          </svg></div>
-        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Upload folder</div>
-      </div>
-    </li>
-    <li>
-      <div class="dropdown-item d-flex btn" role="button" data-toggle="modal" data-target="#createFolder">
-        <div class="icon-sm rounded overflow-hidden flex-shrink-0 text-muted"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-testid="CreateNewFolderOutlinedIcon" class="svg-icon icon-md" height="1em" width="1em">
-            <path d="M20 6h-8l-2-2H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm0 12H4V6h5.17l2 2H20v10zm-8-4h2v2h2v-2h2v-2h-2v-2h-2v2h-2z"></path>
-          </svg></div>
-        <div class="mr-auto w-full text-sm d-flex align-items-center p-2 ">Create folder</div>
-      </div>
-    </li>
-  </ul>
-</div>`
-olPath.appendChild(liItem)
-console.log(currentFolder)
-// lấy dữ liệu trong folder và hiển thị nó ra
- fileEntries(params,true)
-}
-// hàm lấy dữ liệu của folder khi người dùng click vào path
- function clickPath(id, name){
-  var olPath=document.querySelector("#pathEntry");
+   </button>
   
-  var liItems=olPath.querySelectorAll("#pathEntry>li");
-  var foundItem=0;
-  if(id!==null){
-    for(var i=0;i<liItems.length;i++){
-  
-      if(liItems[i].id===id.toString()){
-        foundItem=i;break;
-      }
-    }
+ </div>`  
+ olPath.appendChild(lastLiItem)    
   }
 
+  fileEntries(params,true)
 
-   for(var i=liItems.length-1;i>=foundItem;i--){
- 
-    liItems[i].remove();
-   
-   }
-   loadEntriesInfolder(id,name)
- }
+}
+
 // hàm set blank screen nếu không có dữ liệu 
 function setBlankScreen(type){
    var ariaClick=document.querySelector('#ariaClick');
@@ -543,24 +667,17 @@ function setLayoutDataScreen(hide){
   var ariaClick= document.querySelector("#ariaClick");
   ariaClick.innerHTML=`
   
-  <div id="loading">
+  <div id="loading" class="d-block loadingContent">
   <figure style="height: 100%;">
-    <div id="onLoadingImage">
+    <div class="onLoadingImage">
       <img src="./images/gif/onLoading.gif" alt="Loading...">
-
     </div>
-
     <figcaption style="text-align: center;">
-
       <div class="text"> Đang tải dữ liệu
-
         <div class="icon-dot-loading"><img src="./images/gif/blue-dot-loading.gif" alt="Dot loading"></div>
       </div>
-
     </figcaption>
   </figure>
-
-
 </div>
 <div id="list-grid" class="d-none file-grid-container">
   <div class="file-grid">
@@ -581,14 +698,17 @@ var listGrid= document.querySelector('#list-grid');
 function displayData(data){
   // console.log(data)
   setLayoutDataScreen(false)
-  var listEntries= data.data;
+
+  var listEntries=[]
+  if(data.data)listEntries= data.data;
+  else listEntries=data
   var divParent=document.querySelector("#ariaClick > div.file-grid-container > div.file-grid")
   if(Array.isArray(listEntries)){
   var content= listEntries.map(element=>{
     return item=` <div draggable="true" id="${element.id}" 
-    ${(element.type==='folder' && screenWidth<768) ?`onclick="loadEntriesInfolder(${element.id},'${element.name}')"`:`onclick="clickEntry(this,${element.id},'${element.name}')"`}
+    ${(element.type==='folder' && screenWidth<768) ?`onclick="loadEntriesInfolder(${element.id})"`:`onclick="clickEntry(this,${element.id},'${element.name}')"`}
   
-     ${element.type==='folder'?`ondblclick="loadEntriesInfolder(${element.id},'${element.name}')"`:'ondblclick="doubleClickEntry(this)"'}
+     ${element.type==='folder'?`ondblclick="loadEntriesInfolder(${element.id})"`:'ondblclick="doubleClickEntry(this)"'}
        tabindex="-1" class="shadow rounded border aspect-square flex flex-col grid-item transition-shadow-opacity select-none overflow-hidden outline-none dark:bg-alt">
     <div class="flex-auto relative min-h-0">
       ${getIconEntry(element)}
@@ -601,9 +721,7 @@ function displayData(data){
   </div>`
    }).join("")
   }
-
   divParent.innerHTML=content
-
   var listGrid= document.querySelector('#list-grid');
   var loading= document.querySelector('#loading')
   listGrid.classList.remove('d-none');
@@ -615,7 +733,6 @@ function displayData(data){
   return;
 }
 }
-
 // hàm sự kiện khi người dùng click vào button upload file 
 function clickUploadFile(){
    var fileInput= document.querySelector("#fileInput");
@@ -628,18 +745,15 @@ function clickUploadFile(){
 }
 // hàm upload file và generate ra ui thể hiện tình trạng đang upload
 function uploadFileAndStatusDisplay(files,parenId){
-
   var processUploadDiv= document.getElementById("process-upload")
   if(processUploadDiv.classList.contains('d-none')){
     processUploadDiv.classList.remove('d-none')
     processUploadDiv.classList.add('d-block')
    }
   var listFileUploadProcessDiv=document.getElementById("list-upload-file-process");
-
   var totalUploadFileSpan= document.getElementById("total-upload-file")
    // Loại bỏ những entry là folder
   var totalUploadFile= parseInt(totalUploadFileSpan.innerText)
-
   totalUploadFileSpan.innerHTML=totalUploadFile+files.length;
    for(var i=0;i<files.length;i++){
     var file=files[i]
@@ -673,7 +787,6 @@ function uploadFileAndStatusDisplay(files,parenId){
 // hàm xử lý nếu file đó là một folder , tạo folder sau đó lấy các tries rồi trả về list entries
 async function  uploadFolderAndStatusDisplay(folder,parentId){
   const folderName = folder[0].webkitRelativePath.split('/')[0]
-
   var listFileUploadProcessDiv=document.getElementById("list-upload-file-process"); 
   
   var processUploadDiv= document.getElementById("process-upload")
@@ -722,12 +835,10 @@ async function  uploadFolderAndStatusDisplay(folder,parentId){
    
  
   
-
 }
 // hàm xử lý sự  kiện khi người dùng kéo  file 
 function dropHandler(event) {
   event.preventDefault();
-
   var files = Array.from(event.dataTransfer.files);
   console.log(currentFolder)
   uploadFileAndStatusDisplay(files,currentFolder)
@@ -745,7 +856,6 @@ function uploadFile (file, parentId,relativePath){
   formData.append('parentId',parentId)
   formData.append("relativePath",relativePath);
   var divItem=document.getElementById(`item-upload-process-${Math.round(file.size)}`);
-
   var xhr= new XMLHttpRequest();
   // cấu hình 
   xhr.open('POST',`${server}/api/v1/uploads`,true);
@@ -767,10 +877,8 @@ function uploadFile (file, parentId,relativePath){
         parentIds:[currentFolder],
         
      }
-
      // gọi hàm load lại dữ liệu hiển thị 
      fileEntries(params,false)
-
     }else{
       var iconStatus=divItem.querySelector("div.mr-10")
       iconStatus.innerHTML=getGifProcessUpload(400)
@@ -794,12 +902,11 @@ function closeProcessUpload(){
   divProcessUpload.classList.add('d-none')
   var totalUploadFileSpan= document.getElementById("total-upload-file")
   totalUploadFileSpan.innerHTML="0"
-  var listFileUploadDiv= document.getElementById("list-upload-file-process")
-  listFileUploadDiv.innerHTML=""
+  var listFileUploadedDiv= document.querySelector("#total-uploaded-file")
+  listFileUploadedDiv.innerHTML="0"
 }
-
 // hàm tạo folder khi người dùng nhất nút action 
-function createFolder(){
+ async function createFolder(){
    var inputNameFolder= document.getElementById("name-new-folder")
    var nameFolder= inputNameFolder.value;
    var spanAlert= document.querySelector("#createFolder > div > div > div.modal-body > p")
@@ -818,7 +925,7 @@ function createFolder(){
           "parentId": currentFolder
         })
   }).then(res=>res.json())
-  .then(data=>{
+  .then( data=>{
   
       // gọi hàm đóng upload
       document.querySelector("#createFolder > div > div > div.modal-header > button").click()
@@ -827,17 +934,16 @@ function createFolder(){
       workspaceId:0,
       parentIds:[currentFolder]
    }
-
    // gọi hàm load lại dữ liệu hiển thị 
    fileEntries(params,true)
   })
   .catch(err=>{
       console.log(err)
   })
-    
+     // gọi hàm load lại folder bên thanh nav
+   await getListFolder([null])
+   loadSubFolderNavLeft(null,0);
    }
-
-
 }
 // hàm đổi tên file 
 function renameEntry(id,oldName){
@@ -850,14 +956,12 @@ function renameEntry(id,oldName){
    renameEntryApi(id,oldName,newName)
  }
 }
-
 // hamf disable cảnh báo khi người dùng nhập tên folder
 function nameInputChange(){
   var spanAlertCreateFolder= document.querySelector("#createFolder > div > div > div.modal-body > p")
   var spanAlertRenameFolder= document.querySelector("#modalRename > div > div > div.modal-body > p")
     spanAlertCreateFolder.classList.add('d-none'); 
     spanAlertRenameFolder.classList.add('d-none')
-
 }
 // hàm fetch api xoá file entry
 function deleteEntryApi(ids,deleteForever){
@@ -889,7 +993,6 @@ function deleteEntryApi(ids,deleteForever){
         parentIds:[currentFolder],
         deletedOnly:false
      }
-
      // gọi hàm load lại dữ liệu hiển thị 
      fileEntries(params,false)
     })
@@ -927,10 +1030,8 @@ function renameEntryApi(id,oldName,newName){
         parentIds:[currentFolder],
         deletedOnly:false
      }
-
      // gọi hàm load lại dữ liệu hiển thị 
      fileEntries(params,false)
-
      var closeButton=document.querySelector("#modalRename > div > div > div.modal-footer > button.btn.btn-secondary");
      closeButton.click();
     })
@@ -942,8 +1043,6 @@ function renameEntryApi(id,oldName,newName){
  async function createFolderApi(name,parentId){
   // name là tên thư mục 
   // parenId là Id của thư mục cha mà thư mục mới sẽ được tạo ( không được null)
-
-
  try {
   var myHeader= new Headers();
   myHeader.append("accept","application/json");
@@ -967,7 +1066,6 @@ function renameEntryApi(id,oldName,newName){
   console.log("Lỗi không tạo được folder: "+ error)
  }
  return null;
-
 }
 // hàm khôi phục file đã bị xoá
 function restoreFileApi(id){
@@ -999,10 +1097,8 @@ function restoreFileApi(id){
         parentIds:[currentFolder],
         deletedOnly:false
      }
-
      // gọi hàm load lại dữ liệu hiển thị 
      fileEntries(params,false)
-
     
     })
     .catch(err=>{
@@ -1038,10 +1134,8 @@ function starFileApi(id){
       parentIds:[currentFolder],
       deletedOnly:false
    }
-
    // gọi hàm load lại dữ liệu hiển thị 
    fileEntries(params,false)
-
   
   })
   .catch(err=>{
@@ -1052,7 +1146,6 @@ function starFileApi(id){
 function openFolderDiaglog(){
   var folderInput= document.getElementById("folderInput")
   folderInput.click();
-
 }
 // hàm lấy dữ liệu từ input folder và upload nó lên server 
 function uploadFolder(event) {
@@ -1075,5 +1168,27 @@ function uploadFolder(event) {
    uploadFolderAndStatusDisplay(folders,currentFolder) 
   
 }
-
-
+async function getSpaceUsed(){
+  var myHeader= new Headers();
+  myHeader.append("accept","application/json");
+  myHeader.append("Content-type","application/json");
+  myHeader.append("Authorization",`Bearer ${access_token}`)
+  fetch(`${server}/api/v1/user/space-usage`,{
+      method:"get",
+      headers: myHeader,
+  }).then(res=>res.json())
+  .then(data=>{
+ 
+     var percentUsed= Math.round(data.used/data.available *100)
+     var divValue= document.getElementById("spaceAriaValueNow")
+     divValue.setAttribute("aria-valuenow",percentUsed)
+     var  divUsed= document.getElementById("spaceUsed")
+     divUsed.style.width=`${percentUsed}%`
+     var textDisplaySpan= document.getElementById("textSpaceUsed");
+     textDisplaySpan.innerHTML=`Đã sử dụng ${Math.round(data.used/(1024*1024))} MB <br> trong ${Math.round(data.available/(1024*1024))} MB`
+  
+  })
+  .catch(err=>{
+      console.log(err)
+  })
+}
